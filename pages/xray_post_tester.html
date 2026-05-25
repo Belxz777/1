@@ -1,0 +1,159 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-mono); }
+  .root { padding: 1rem 0; }
+  .url-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .method { background: var(--color-background-info); color: var(--color-text-info); font-size: 12px; font-weight: 500; padding: 6px 10px; border-radius: var(--border-radius-md); letter-spacing: 0.05em; }
+  .url { font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 10px; flex: 1; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .card-label { font-size: 11px; color: var(--color-text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .field { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .field label { font-size: 13px; color: var(--color-text-secondary); }
+  .field input, .field select { font-size: 13px; font-family: var(--font-mono); padding: 6px 10px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); color: var(--color-text-primary); width: 100%; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--color-border-primary); }
+  .payload-box { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; white-space: pre; overflow-x: auto; line-height: 1.6; }
+  .actions { display: flex; gap: 8px; align-items: center; }
+  .btn-send { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; font-family: var(--font-sans); padding: 7px 18px; cursor: pointer; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+  .btn-send:hover { background: var(--color-background-secondary); }
+  .btn-copy { background: transparent; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); font-size: 12px; font-family: var(--font-sans); padding: 7px 12px; cursor: pointer; color: var(--color-text-secondary); }
+  .btn-copy:hover { color: var(--color-text-primary); }
+  .status-badge { font-size: 12px; padding: 4px 10px; border-radius: var(--border-radius-md); font-weight: 500; }
+  .s-ok { background: var(--color-background-success); color: var(--color-text-success); }
+  .s-err { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .s-loading { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .response-box { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; max-height: 260px; overflow-y: auto; }
+  .resp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .key { color: #7F77DD; }
+  .str { color: #1D9E75; }
+  .num { color: #BA7517; }
+</style>
+
+<div class="root">
+  <div class="url-bar">
+    <span class="method">POST</span>
+    <div class="url">http://localhost:3000/xray/config/generate</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Body — application/json</div>
+    <div class="field">
+      <label>port</label>
+      <input type="number" id="f-port" value="10443" min="1" max="65535" />
+    </div>
+    <div class="field">
+      <label>protocol</label>
+      <select id="f-protocol">
+        <option value="vless">vless</option>
+        <option value="vmess">vmess</option>
+        <option value="trojan">trojan</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>uuid</label>
+      <input type="text" id="f-uuid" value="" placeholder="auto-generate" />
+    </div>
+    <div class="field">
+      <label>tag</label>
+      <input type="text" id="f-tag" value="inbound-main" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Preview</div>
+    <div class="payload-box" id="preview"></div>
+  </div>
+
+  <div class="actions" style="margin-bottom: 12px;">
+    <button class="btn-send" onclick="sendRequest()"><i class="ti ti-player-play" aria-hidden="true"></i> Send request</button>
+    <button class="btn-copy" onclick="copyCurl()"><i class="ti ti-copy" aria-hidden="true"></i> Copy as curl</button>
+    <button class="btn-copy" onclick="genUUID()"><i class="ti ti-refresh" aria-hidden="true"></i> New UUID</button>
+  </div>
+
+  <div id="resp-section" style="display:none">
+    <div class="card">
+      <div class="resp-header">
+        <div class="card-label" style="margin:0">Response</div>
+        <span class="status-badge" id="status-badge"></span>
+      </div>
+      <div class="response-box" id="resp-body">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function genUUID() {
+  const b = () => Math.random().toString(16).slice(2,10);
+  const uuid = `${b().slice(0,8)}-${b().slice(0,4)}-4${b().slice(0,3)}-${(Math.floor(Math.random()*4)+8).toString(16)}${b().slice(0,3)}-${b()}${b().slice(0,4)}`;
+  document.getElementById('f-uuid').value = uuid;
+  updatePreview();
+}
+
+function getPayload() {
+  const port = parseInt(document.getElementById('f-port').value) || 10443;
+  const protocol = document.getElementById('f-protocol').value;
+  const uuid = document.getElementById('f-uuid').value || (() => { genUUID(); return document.getElementById('f-uuid').value; })();
+  const tag = document.getElementById('f-tag').value || 'inbound-main';
+  return { port, protocol, uuid, tag };
+}
+
+function highlight(json) {
+  return json
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+      if (/^"/.test(m)) {
+        if (/:$/.test(m)) return `<span class="key">${m}</span>`;
+        return `<span class="str">${m}</span>`;
+      }
+      if (/true|false|null/.test(m)) return `<span class="key">${m}</span>`;
+      return `<span class="num">${m}</span>`;
+    });
+}
+
+function updatePreview() {
+  const p = getPayload();
+  const json = JSON.stringify(p, null, 2);
+  document.getElementById('preview').innerHTML = highlight(json);
+}
+
+async function sendRequest() {
+  const payload = getPayload();
+  const section = document.getElementById('resp-section');
+  const badge = document.getElementById('status-badge');
+  const body = document.getElementById('resp-body');
+  section.style.display = 'block';
+  badge.className = 'status-badge s-loading';
+  badge.textContent = 'sending…';
+  body.textContent = '';
+  try {
+    const r = await fetch('http://localhost:3000/xray/config/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const text = await r.text();
+    let pretty;
+    try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch { pretty = text; }
+    badge.className = `status-badge ${r.ok ? 's-ok' : 's-err'}`;
+    badge.textContent = `${r.status} ${r.statusText}`;
+    body.innerHTML = highlight(pretty);
+  } catch (e) {
+    badge.className = 'status-badge s-err';
+    badge.textContent = 'Network error';
+    body.textContent = e.message + '\n\nMake sure your Bun server is running on port 3000.';
+  }
+}
+
+function copyCurl() {
+  const p = getPayload();
+  const curl = `curl -X POST http://localhost:3000/xray/config/generate \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(p)}'`;
+  navigator.clipboard.writeText(curl).catch(() => {});
+  const btn = event.target.closest('button');
+  btn.textContent = '✓ copied';
+  setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i> Copy as curl'; }, 1500);
+}
+
+genUUID();
+['f-port','f-protocol','f-uuid','f-tag'].forEach(id =>
+  document.getElementById(id).addEventListener('input', updatePreview)
+);
+</script>
