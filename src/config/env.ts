@@ -15,7 +15,9 @@ export const env = {
     isProduction: validatedEnv.NODE_ENV === 'production',
     isTest: validatedEnv.NODE_ENV === 'test',
   },
-  
+  db:{
+    path: validatedEnv.DB_PATH
+  },
   // Логирование
   logging: {
     level: validatedEnv.LOG_LEVEL,

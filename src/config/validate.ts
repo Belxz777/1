@@ -15,6 +15,8 @@ export const envSchema = z.object({
   
   // Опциональные переменные
   MODE: z.string().optional(),
+
+  DB_PATH: z.string().min(1, "DB_PATH is required")
 });
 
 // Тип для TypeScript
