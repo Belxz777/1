@@ -1,0 +1,38 @@
+services:
+  xray:
+    image: teddysun/xray:latest
+    container_name: xray
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - xray-config:/etc/xray
+      - xray-logs:/var/log/xray
+    environment:
+      - TZ=UTC
+
+  panel:
+    build: .
+    container_name: xray-panel
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - xray
+    volumes:
+      - panel-data:/data
+      - xray-config:/etc/xray
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - DB_PATH=/data/panel.db
+      - XRAY_BINARY=xray
+      - XRAY_CONFIG=/etc/xray/config.json
+      - XRAY_LOCATION_ASSET=/usr/share/xray
+      - XRAY_API_ADDRESS=127.0.0.1:10085
+      - SERVER_PUBLIC_HOST=your-server.com
+      - TZ=UTC
+
+volumes:
+  xray-config:
+  xray-logs:
+  panel-data:

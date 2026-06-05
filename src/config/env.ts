@@ -28,8 +28,17 @@ export const env = {
     binary: validatedEnv.XRAY_BINARY,
     configPath: validatedEnv.XRAY_CONFIG,
     assetsPath: validatedEnv.XRAY_LOCATION_ASSET || '/usr/share/xray',
+    apiAddress: validatedEnv.XRAY_API_ADDRESS,
   },
   
+  // JWT
+  auth: {
+    jwtSecret: validatedEnv.AUTH_JWT_SECRET,
+  },
+
+  // Публичный адрес для share-ссылок
+  publicHost: validatedEnv.SERVER_PUBLIC_HOST,
+
   // Другие настройки
   mode: validatedEnv.MODE,
 };

@@ -1,13 +1,24 @@
-import { describe, it, expect, afterAll } from "bun:test";
+import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { ClientModel } from "../models/client";
+import { InboundModel } from "../models/inbound";
 
 const ID = crypto.randomUUID();
+let inboundId: number;
 
 describe("ClientModel", () => {
 
+  beforeAll(async () => {
+    const inbound = await InboundModel.create({
+      tag: "test-inbound",
+      protocol: "vless",
+      port: 10443,
+    });
+    inboundId = inbound.id;
+  });
+
   it("create", async () => {
     const c = await ClientModel.create({
-      id: ID, inboundId: 1, email: "test@x.com"
+      id: ID, inboundId, email: "test@x.com"
     });
     expect(c.id).toBe(ID);
     expect(c.enabled).toBe(true);
@@ -23,5 +34,8 @@ describe("ClientModel", () => {
     expect(ClientModel.isExpired(c!)).toBe(false);
   });
 
-  afterAll(() => ClientModel.delete(ID));
+  afterAll(async () => {
+    await ClientModel.delete(ID);
+    await InboundModel.delete(inboundId);
+  });
 });

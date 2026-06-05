@@ -1,14 +1,16 @@
-import { eq, sql } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import { t } from "elysia";
 import { db } from "../database";
-import { inbounds } from "../database/schema";
+import { clients, inbounds, PROTOCOLS } from "../database/schema";
 import type { Inbound, NewInbound } from "../database/schema";
 
 // ─── Elysia validation schemas ───────────────────────────────────────────────
-
+const ProtocolSchema = t.Union(
+  PROTOCOLS.map(v => t.Literal(v))
+);
 export const InboundCreateSchema = t.Object({
   tag:              t.String({ minLength: 1, maxLength: 255, description: "Уникальный тег подключения" }),
-  protocol:         t.String({ minLength: 1, description: "Протокол: vless, vmess, trojan, shadowsocks, socks, http, dokodemo-door" }),
+  protocol:         ProtocolSchema,
   port:             t.Number({ minimum: 1, maximum: 65535 }),
   listen:           t.Optional(t.String({ default: "0.0.0.0" })),
   settings:         t.Optional(t.String({ default: "{}", description: "JSON-строка настроек протокола" })),
@@ -19,7 +21,7 @@ export const InboundCreateSchema = t.Object({
 export const InboundUpdateSchema = t.Partial(
   t.Object({
     tag:              t.String({ minLength: 1, maxLength: 255 }),
-    protocol:         t.String(),
+    protocol:         ProtocolSchema,
     port:             t.Number({ minimum: 1, maximum: 65535 }),
     listen:           t.String(),
     enabled:          t.Boolean(),
@@ -47,20 +49,20 @@ export const InboundModel = {
   // ── CREATE ──────────────────────────────────────────────────────────────────
 
   async create(data: NewInbound): Promise<Inbound> {
-    const [created] = await db
-      .insert(inbounds)
-      .values({
-        ...data,
-        listen:          data.listen          ?? "0.0.0.0",
-        enabled:         data.enabled         ?? true,
-        settings:        data.settings        ?? "{}",
-        streamSettings:  data.streamSettings  ?? "{}",
-        sniffingEnabled: data.sniffingEnabled ?? true,
-      })
-      .returning();
+  const [created] = await db
+    .insert(inbounds)
+    .values({
+      ...data,
+      listen: data.listen ?? "0.0.0.0",
+      enabled: data.enabled ?? true,
+      settings: data.settings ?? {},
+      streamSettings: data.streamSettings ?? {},
+      sniffingEnabled: data.sniffingEnabled ?? true,
+    })
+    .returning();
 
-    return created;
-  },
+  return created;
+},
 
   // ── READ ─────────────────────────────────────────────────────────────────────
 
@@ -135,15 +137,14 @@ export const InboundModel = {
   // ── STATS ────────────────────────────────────────────────────────────────────
 
   /** Количество клиентов в inbound */
-  async getClientCount(id: number): Promise<number> {
-    const result = await db.query.inbounds.findFirst({
-      where: eq(inbounds.id, id),
-      with:  { clients: true },
-    });
+async getClientCount(id: number): Promise<number> {
+  const [result] = await db
+    .select({ count: count() })
+    .from(clients)
+    .where(eq(clients.inboundId, id));
 
-    return result?.clients ?? 0;
-  },
-
+  return result.count;
+},
   // ── HELPERS ─────────────────────────────────────────────────────────────────
 
   isActive,

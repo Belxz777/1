@@ -4,19 +4,28 @@ import { z } from 'zod';
 // Определение схемы для переменных окружения
 export const envSchema = z.object({
   // Сервер
-  PORT: z.string().transform(Number),
+  PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
   
   // XRay конфигурация
-  XRAY_BINARY: z.string().min(1, "XRAY_BINARY is required"),
-  XRAY_CONFIG: z.string().min(1, "XRAY_CONFIG is required"),
-  XRAY_LOCATION_ASSET: z.string().optional(),
+  XRAY_BINARY: z.string().default("xray"),
+  XRAY_CONFIG: z.string().default("/etc/xray/config.json"),
+  XRAY_LOCATION_ASSET: z.string().default("/usr/share/xray"),
   
+  // XRay API (gRPC)
+  XRAY_API_ADDRESS: z.string().default("127.0.0.1:10085"),
+
+  // Публичный адрес сервера для ссылок-подписок
+  SERVER_PUBLIC_HOST: z.string().default("127.0.0.1"),
+
+  // JWT аутентификация
+  AUTH_JWT_SECRET: z.string().min(16, "AUTH_JWT_SECRET must be at least 16 characters").default("changeme-secret-key-min-16-chars"),
+
   // Опциональные переменные
   MODE: z.string().optional(),
 
-  DB_PATH: z.string().min(1, "DB_PATH is required")
+  DB_PATH: z.string().default("./data/xpanel.db")
 });
 
 // Тип для TypeScript
@@ -29,7 +38,7 @@ export function validateEnv(): EnvSchema {
     return result;
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('❌ Environment validation failed:');
+      console.error('❌ Environment validation failed:', error.issues);
     } else {
       console.error('❌ Unknown error during validation:', error);
     }

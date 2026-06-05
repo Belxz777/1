@@ -2,7 +2,8 @@
   "name": "1",
   "version": "1.0.50",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "PORT=3000 DB_PATH=/tmp/xpanel-test.db NODE_ENV=test LOG_LEVEL=info XRAY_BINARY=xray XRAY_CONFIG=/etc/xray/config.json XRAY_LOCATION_ASSET=/usr/share/xray XRAY_API_ADDRESS=127.0.0.1:10085 SERVER_PUBLIC_HOST=test.example.com bun test",
+    "test:sub": "PORT=3000 DB_PATH=/tmp/xpanel-test.db NODE_ENV=test LOG_LEVEL=info XRAY_BINARY=xray XRAY_CONFIG=/etc/xray/config.json XRAY_LOCATION_ASSET=/usr/share/xray XRAY_API_ADDRESS=127.0.0.1:10085 SERVER_PUBLIC_HOST=test.example.com bun test src/tests/subscription.test.ts",
     "dev": "bun run --watch src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -11,13 +12,18 @@
   },
   "dependencies": {
     "@elysiajs/html": "^1.4.2",
+    "@elysiajs/jwt": "^1.4.2",
     "@elysiajs/swagger": "^1.3.1",
+    "@grpc/grpc-js": "^1.14.4",
+    "@grpc/proto-loader": "^0.8.1",
     "drizzle-orm": "^0.45.2",
     "elysia": "latest",
+    "qrcode": "^1.5.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
+    "@types/qrcode": "^1.5.6",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.10"
   },

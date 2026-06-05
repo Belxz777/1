@@ -1,0 +1,69 @@
+
+<style>
+.monitor-wrap { font-family: var(--font-mono); padding: 1rem 0; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.card .label { display: block; font-size: 11px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.card .value { display: block; font-size: 26px; font-weight: 500; color: var(--color-text-primary); line-height: 1.1; }
+.card .sub { display: block; font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.bar-wrap { margin-top: 8px; height: 4px; background: var(--color-border-tertiary); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+.core-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; margin-top: 10px; }
+.core-cell { background: var(--color-background-secondary); border-radius: 4px; padding: 6px 4px; text-align: center; font-size: 11px; color: var(--color-text-secondary); }
+.core-cell .cv { font-size: 13px; font-weight: 500; color: var(--color-text-primary); display: block; }
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-tertiary); margin: 1rem 0 6px; }
+.refresh-note { font-size: 12px; color: var(--color-text-tertiary); margin-top: 1rem; }
+.htmx-indicator { opacity: 0; transition: opacity .2s; font-size: 12px; color: var(--color-text-secondary); }
+.htmx-request .htmx-indicator { opacity: 1; }
+</style>
+
+<div class="monitor-wrap">
+  <p class="section-label">HTML-фрагмент от сервера — именно это HTMX вставит в #stats</p>
+
+  <div class="stat-grid" id="stats">
+    <div class="card">
+      <span class="label"><i class="ti ti-cpu" aria-hidden="true"></i> CPU avg</span>
+      <span class="value">5.8%</span>
+      <span class="sub">12 cores · 800 MHz</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:5.8%; background:#534AB7;"></div></div>
+    </div>
+    <div class="card">
+      <span class="label"><i class="ti ti-database" aria-hidden="true"></i> Memory</span>
+      <span class="value">59.3%</span>
+      <span class="sub">9.2 / 15.5 GB</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:59.3%; background:#0F6E56;"></div></div>
+    </div>
+    <div class="card">
+      <span class="label"><i class="ti ti-bolt" aria-hidden="true"></i> Free RAM</span>
+      <span class="value">6.3 GB</span>
+      <span class="sub">6459 MB свободно</span>
+    </div>
+    <div class="card">
+      <span class="label"><i class="ti ti-circuit-resistor" aria-hidden="true"></i> Model</span>
+      <span class="value" style="font-size:13px; padding-top:4px;">i5-11400F</span>
+      <span class="sub">2.60 GHz base</span>
+    </div>
+  </div>
+
+  <p class="section-label">Cores (каждый отдельно)</p>
+  <div class="core-grid">
+    <div class="core-cell"><span class="cv">5.9%</span>Core 0</div>
+    <div class="core-cell"><span class="cv">6.2%</span>Core 1</div>
+    <div class="core-cell"><span class="cv">6.4%</span>Core 2</div>
+    <div class="core-cell"><span class="cv">6.5%</span>Core 3</div>
+    <div class="core-cell"><span class="cv">6.1%</span>Core 4</div>
+    <div class="core-cell"><span class="cv">6.5%</span>Core 5</div>
+    <div class="core-cell"><span class="cv">5.6%</span>Core 6</div>
+    <div class="core-cell"><span class="cv">6.7%</span>Core 7</div>
+    <div class="core-cell"><span class="cv">6.4%</span>Core 8</div>
+    <div class="core-cell"><span class="cv">5.5%</span>Core 9</div>
+    <div class="core-cell"><span class="cv">5.8%</span>Core 10</div>
+    <div class="core-cell"><span class="cv">5.9%</span>Core 11</div>
+  </div>
+
+  <p class="refresh-note"><i class="ti ti-refresh" aria-hidden="true"></i> обновляется каждые 2 сек · <span id="ts">—</span></p>
+</div>
+
+<script>
+document.getElementById('ts').textContent = new Date().toLocaleTimeString('ru');
+</script>

@@ -1,0 +1,10 @@
+node_modules
+.git
+.gitignore
+*.md
+.dockerignore
+docker-compose.yml
+Dockerfile
+docker-entrypoint.sh
+src/.env
+bun.lock

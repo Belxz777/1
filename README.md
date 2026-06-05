@@ -296,20 +296,11 @@ beforeAll(() => {
 ```
 
 ---
-
-## Нерешённые задачи / TODO
-
-- `services/processes/` — пустая папка, заготовка под ProcessManager
-- `manage.ts` — нужен watch на xray процесс (авторестарт при падении)
-- Polling трафика — `traffic_stats` не заполняется, нужен cron/setInterval который дёргает xray stats API (`POST /stats/query`) и вызывает `ClientModel.addTraffic()`
-- Swagger — не подключён (`@elysiajs/swagger`), нужен для удобного ручного тестирования
-- `InboundModel.getClientCount` возвращает `result?.clients ?? 0` — баг, `clients` это массив, нужно `result?.clients.length ?? 0`
-- Тесты для InboundModel не написаны
-- `src/models/inbound.ts` — `settings` и `streamSettings` в схемах валидации (`InboundCreateSchema`) описаны как `t.String()` но должны быть `t.Object()` или `t.Record()` после перехода на Drizzle json mode
-
 ---
 
 ## Известные баги и решения
 
 | Баг | Причина | Решение |
 |---|---|---|
+
+

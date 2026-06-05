@@ -3,9 +3,9 @@ import Elysia from "elysia";
 
 export const pages = new Elysia (
     {
-        prefix:"pages"
+        prefix:"panel"
     }
 ).use(html())
-.get('/pg', () => {
-   return Bun.file('./pages/xray_post_tester.html').text()
+.get('/', () => {
+   return Bun.file('./pages/index.htm').text()
 })

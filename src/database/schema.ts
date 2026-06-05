@@ -1,11 +1,19 @@
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
-
+import { sql, relations } from "drizzle-orm";
+export const PROTOCOLS = [
+  "vless",
+  "vmess",
+  "trojan",
+  "shadowsocks",
+  "socks",
+  "http",
+  "dokodemo-door",
+] as const;
 export const inbounds = sqliteTable("inbounds", {
   id:              integer("id").primaryKey({ autoIncrement: true }),
   tag:             text("tag").notNull().unique(),
   protocol:        text("protocol", {
-                     enum: ["vless","vmess","trojan","shadowsocks","socks","http","dokodemo-door"]
+                     enum: PROTOCOLS
                    }).notNull(),
   port:            integer("port").notNull(),
   listen:          text("listen").notNull().default("0.0.0.0"),
@@ -59,7 +67,29 @@ export const routingRules = sqliteTable("routing_rules", {
   enabled:     integer("enabled", { mode: "boolean" }).notNull().default(true),
 });
 
-// Экспорт выведенных типов — бесплатно
+// ─── Relations для Drizzle relational queries ─────────────────────────────────
+
+export const inboundsRelations = relations(inbounds, ({ many }) => ({
+  clients: many(clients),
+}));
+
+export const clientsRelations = relations(clients, ({ one, many }) => ({
+  inbound: one(inbounds, {
+    fields:   [clients.inboundId],
+    references: [inbounds.id],
+  }),
+  trafficStats: many(trafficStats),
+}));
+
+export const trafficStatsRelations = relations(trafficStats, ({ one }) => ({
+  client: one(clients, {
+    fields:   [trafficStats.clientId],
+    references: [clients.id],
+  }),
+}));
+
+// ─── Экспорт выведенных типов ─────────────────────────────────────────────────
+
 export type Inbound      = typeof inbounds.$inferSelect;
 export type NewInbound   = typeof inbounds.$inferInsert;
 export type Client       = typeof clients.$inferSelect;
