@@ -9,3 +9,6 @@ export const pages = new Elysia (
 .get('/', () => {
    return Bun.file('./pages/index.htm').text()
 })
+.get('/dash',()=>{
+    return Bun.file('').text()
+})
