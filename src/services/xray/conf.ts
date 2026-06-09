@@ -167,10 +167,66 @@ export async function generateXrayConfig(): Promise<XRayConfig> {
 
 // ─── Запись конфига на диск ───────────────────────────────────────────────────
 
+// ─── Секции, которые нужно сохранять из существующего конфига ────────────────
+
+const PRESERVED_KEYS = ["api", "grpc", "policy", "stats"] as const;
+
+// Тег inbound/outbound, относящийся к gRPC API (обычно "api")
+const API_INBOUND_TAG  = "api";
+const API_OUTBOUND_TAG = "api";
+
+// ─── Запись конфига на диск ───────────────────────────────────────────────────
+
 export async function writeXrayConfig(
   configPath: string = env.xray?.configPath ?? "/etc/xray/config.json"
 ): Promise<XRayConfig> {
   const config = await generateXrayConfig();
-  await Bun.write(configPath, JSON.stringify(config, null, 2));
-  return config;
+
+  // Читаем существующий конфиг, чтобы не затереть grpc/api секции
+  let existingRaw: Record<string, unknown> = {};
+  try {
+    const file = Bun.file(configPath);
+    if (await file.exists()) {
+      existingRaw = await file.json();
+    }
+  } catch {
+    // файла нет или он повреждён — пишем с нуля
+  }
+
+  // Сохраняем верхнеуровневые секции (api, grpc, policy, stats …)
+  const preserved: Record<string, unknown> = {};
+  for (const key of PRESERVED_KEYS) {
+    if (key in existingRaw) {
+      preserved[key] = existingRaw[key];
+    }
+  }
+
+  // Сохраняем inbounds с тегом "api" из существующего конфига
+  const existingInbounds = (existingRaw.inbounds ?? []) as XRayInbound[];
+  const apiInbounds = existingInbounds.filter(ib => ib.tag === API_INBOUND_TAG);
+
+  // Сохраняем outbounds с тегом "api" из существующего конфига
+  const existingOutbounds = (existingRaw.outbounds ?? []) as XRayOutbound[];
+  const apiOutbounds = existingOutbounds.filter(ob => ob.tag === API_OUTBOUND_TAG);
+
+  // Сохраняем routing-правила, ссылающиеся на "api" outbound
+  const existingRules = (
+    (existingRaw.routing as Record<string, unknown>)?.rules ?? []
+  ) as XRayRoutingRule[];
+  const apiRules = existingRules.filter(r => r.outboundTag === API_OUTBOUND_TAG);
+
+  // Собираем итоговый конфиг
+  const merged = {
+    ...config,
+    ...preserved,
+    inbounds: [...apiInbounds, ...config.inbounds],
+    outbounds: [...config.outbounds, ...apiOutbounds],
+    routing: {
+      ...config.routing,
+      rules: [...apiRules, ...config.routing.rules],
+    },
+  };
+
+  await Bun.write(configPath, JSON.stringify(merged, null, 2));
+  return config; // возвращаем оригинал (без мёрджа) — как было
 }

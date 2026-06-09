@@ -13,8 +13,20 @@ export const InboundCreateSchema = t.Object({
   protocol:         ProtocolSchema,
   port:             t.Number({ minimum: 1, maximum: 65535 }),
   listen:           t.Optional(t.String({ default: "0.0.0.0" })),
-  settings:         t.Optional(t.String({ default: "{}", description: "JSON-строка настроек протокола" })),
-  streamSettings:   t.Optional(t.String({ default: "{}", description: "JSON-строка настроек транспорта" })),
+ settings: t.Optional(
+  t.Object({}, {
+    additionalProperties: true,
+    default: {},
+    description:"Настройки "
+  })
+),
+streamSettings: t.Optional(
+  t.Object({}, {
+    additionalProperties: true,
+    default: {},
+    description:"Настройки соед"
+  })
+),
   sniffingEnabled:  t.Optional(t.Boolean({ default: true })),
 });
 
@@ -49,6 +61,25 @@ export const InboundModel = {
   // ── CREATE ──────────────────────────────────────────────────────────────────
 
   async create(data: NewInbound): Promise<Inbound> {
+  const existingTag = await db.query.inbounds.findFirst({
+    where: eq(inbounds.tag, data.tag),
+  });
+
+  if (existingTag) {
+    throw new Error(`Inbound with tag '${data.tag}' already exists`);
+  }
+
+  const existingPort = await db.query.inbounds.findFirst({
+    where: sql`${inbounds.listen} = ${data.listen ?? "0.0.0.0"}
+               AND ${inbounds.port} = ${data.port}`,
+  });
+
+  if (existingPort) {
+    throw new Error(
+      `Inbound ${data.listen ?? "0.0.0.0"}:${data.port} already exists`
+    );
+  }
+
   const [created] = await db
     .insert(inbounds)
     .values({

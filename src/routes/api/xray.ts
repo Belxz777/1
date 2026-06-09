@@ -1,22 +1,22 @@
 import Elysia, { t } from "elysia";
-import { dbPlugin } from "../database/plugin";
+import { dbPlugin } from "../../database/plugin";
 import {
   getXrayVersion,
   isXrayRunning,
   restartXray,
   validateConfig,
-} from "../services/xray/manage";
-import { writeXrayConfig } from "../services/xray/conf";
+} from "../../services/xray/manage";
+import { writeXrayConfig } from "../../services/xray/conf";
 import {
   getStat,
   queryStats,
   getSysStats,
   getAllOnlineUsers,
   getUserStats,
-} from "../services/xray/api";
-import { InboundModel, InboundCreateSchema, InboundUpdateSchema, NewInbound } from "../models/inbound";
-import { ClientModel, ClientCreateSchema } from "../models/client";
-import { addUserToInbound, removeUserFromInbound, listInbounds } from "../services/xray/handler";
+} from "../../services/xray/api";
+import { InboundModel, InboundCreateSchema, InboundUpdateSchema, NewInbound } from "../../models/inbound";
+import { ClientModel, ClientCreateSchema } from "../../models/client";
+import { addUserToInbound, removeUserFromInbound, listInbounds } from "../../services/xray/handler";
 
 // ─── Хелпер: перезаписать конфиг и перезапустить xray ────────────────────────
 
@@ -224,7 +224,6 @@ export const xrayRoutes = new Elysia({ prefix: "/xray" })
       }),
     }
   )
-
   .get("/api/sysstats", () => getSysStats())
 
   .get("/api/online", () => getAllOnlineUsers())

@@ -1,12 +1,12 @@
 import Elysia, { t } from "elysia";
 import jwt from "@elysiajs/jwt";
-import { env } from "../config";
+import { env } from "../../config";
 import {
   verifyPassword,
   setAdminPassword,
   isAdminRegistered,
   getAdminPasswordHash,
-} from "../services/auth";
+} from "../../services/auth";
 
 const loginPage = (error?: string) => `<!DOCTYPE html>
 <html lang="ru">

@@ -1,7 +1,7 @@
 import Elysia, { t } from "elysia";
-import { ClientModel } from "../models/client";
-import { InboundModel } from "../models/inbound";
-import { buildShareLink, buildSubscription } from "../services/subscription";
+import { ClientModel } from "../../models/client";
+import { InboundModel } from "../../models/inbound";
+import { buildShareLink, buildSubscription } from "../../services/subscription";
 
 export const subRoutes = new Elysia({ prefix: "/sub" })
 

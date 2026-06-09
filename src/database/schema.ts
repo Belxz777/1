@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { sql, relations } from "drizzle-orm";
 export const PROTOCOLS = [
   "vless",
@@ -23,7 +23,13 @@ export const inbounds = sqliteTable("inbounds", {
   sniffingEnabled: integer("sniffing_enabled", { mode: "boolean" }).notNull().default(true),
   createdAt:       text("created_at").notNull().default(sql`(datetime('now'))`),
   updatedAt:       text("updated_at").notNull().default(sql`(datetime('now'))`),
-});
+  
+},
+  (table) => ({
+    listenPortUnique: uniqueIndex("inbounds_listen_port_unique")
+      .on(table.listen, table.port),
+  })
+);
 
 export const clients = sqliteTable("clients", {
   id:                   text("id").primaryKey(),       // UUID

@@ -21,6 +21,9 @@
         "bun-types": "latest",
         "drizzle-kit": "^0.31.10",
       },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
     },
   },
   "packages": {

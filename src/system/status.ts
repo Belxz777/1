@@ -1,7 +1,11 @@
+import { syncXray } from "@/services/xray/sync";
 import Elysia, { t } from "elysia";
 import os from "os";
 
 export const systemData = new Elysia({ prefix: "/system" })
+.get('/check',() =>{
+return syncXray()
+})
   .get(
     "/all",
     ({ query }) => {
