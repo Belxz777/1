@@ -61,10 +61,11 @@ export const xrayRoutes = new Elysia({ prefix: "/xray" })
     "/inbounds/:id",
     async ({ params, status }) => {
       const inbound = await InboundModel.getById(Number(params.id));
-      if(inbound)  {
+      if(!inbound)  {
         status(404)
         return { message: "Inbound не найден" }
       }
+    return {inbound:inbound}
     },
     {
       params: t.Object({ id: t.Numeric() }),

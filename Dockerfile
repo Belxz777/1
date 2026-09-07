@@ -18,7 +18,6 @@ RUN curl -fsSL https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSI
     && unzip /tmp/xray.zip -d /usr/local/bin/ \
     && rm /tmp/xray.zip \
     && chmod +x /usr/local/bin/xray
-
 RUN mkdir -p /usr/share/xray /etc/xray /data /app
 
 COPY --from=build /app /app
