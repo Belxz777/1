@@ -1,8 +1,10 @@
+import { authGuard } from "@/middleware/authGuard";
 import { syncXray } from "@/services/xray/sync";
 import Elysia, { t } from "elysia";
 import os from "os";
 
 export const systemData = new Elysia({ prefix: "/system" })
+.use(authGuard)
 .get('/check',() =>{
 return syncXray()
 })

@@ -17,6 +17,7 @@ import {
 import { InboundModel, InboundCreateSchema, InboundUpdateSchema, NewInbound } from "../models/inbound";
 import { ClientModel, ClientCreateSchema } from "../models/client";
 import { addUserToInbound, removeUserFromInbound, listInbounds } from "../services/xray/handler";
+import { authGuard } from "@/middleware/authGuard";
 
 // ─── Хелпер: перезаписать конфиг и перезапустить xray ────────────────────────
 
@@ -29,6 +30,7 @@ async function applyConfig() {
 
 export const xrayRoutes = new Elysia({ prefix: "/xray" })
   .use(dbPlugin)
+  .use(authGuard)
 
   // ==================== CORE ====================
 
