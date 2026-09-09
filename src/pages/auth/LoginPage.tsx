@@ -7,6 +7,7 @@ interface LoginPageProps {
 export const LoginPage = ({
   error,
 }: LoginPageProps) => {
+  const nm =  "nbdsdadsa";
   return (
     <AuthLayout title="Вход">
 
@@ -42,7 +43,7 @@ export const LoginPage = ({
                 tracking-tight
               "
             >
-              XPanel
+              ${nm}
             </h1>
 
             <p class="mt-2 text-sm text-zinc-400">
