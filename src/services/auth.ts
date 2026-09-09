@@ -39,3 +39,13 @@ export async function isAdminRegistered(): Promise<boolean> {
   const hash = await getAdminPasswordHash();
   return hash !== null;
 }
+export async function clearAdmin():Promise<boolean> {
+  const result = await db
+    .delete(settings)
+    .where(eq(settings.key, ADMIN_PASSWORD_KEY));
+  return result.changes > 0;
+}
+export function getTokenFromCookie(request: Request): string | undefined {
+  const cookie = request.headers.get("cookie") ?? "";
+  return cookie.split(";").find(c => c.trim().startsWith("token="))?.split("=")[1];
+}

@@ -1,12 +1,19 @@
-import html from "@elysiajs/html";
 import Elysia from "elysia";
-import page from '@/pages/index.html'
-export const pages = new Elysia (
-    {
-        prefix:"panel"
-    }
-).use(html())
-.get('/', () => {
-
-   return Bun.file('src/pages/index.html')
-})
+import jwt from "@elysiajs/jwt";
+import { env } from "../config";
+import { getTokenFromCookie } from "../services/auth";
+ 
+// Корень "/" ничего сам не рисует — просто решает,
+// куда отправить: в дашборд (если есть валидный токен)
+// или на страницу входа.
+export const pages = new Elysia()
+  .use(jwt({ name: "jwt", secret: env.auth.jwtSecret }))
+  .get("/", async ({ request, jwt, set }) => {
+    const token = getTokenFromCookie(request);
+    const payload = token ? await jwt.verify(token) : null;
+ 
+    set.status = 302;
+    set.headers["Location"] = payload ? "/dashboard" : "/auth/login";
+    return "";
+  });
+ 

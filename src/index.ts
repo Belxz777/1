@@ -3,12 +3,13 @@ import { xrayRoutes } from "./routes/api/xray";
 import { env } from "./config";
 import { pages } from "./routes/pages";
 import { subRoutes, shareRoutes } from "./routes/api/subscription";
-import { authRoutes } from "./routes/html/auth";
+import staticPlugin from "@elysiajs/static";
 import swagger from "@elysiajs/swagger";
 import html from "@elysiajs/html";
 import { systemData } from "./system/status";
 import { loggingMiddleware } from "./logging/middleware";
-import { dash } from "./routes/html/dashboard";
+import { dash } from "./routes/html/dashboard.tsx";
+import {auth} from "./routes/html/auth.tsx"
 
 console.log('🚀 Starting server with config:', {
   port: env.server.port,
@@ -21,12 +22,17 @@ console.log('🚀 Starting server with config:', {
 const app = new Elysia()
   .use(loggingMiddleware)
   .use(html())
+  .use(
+  staticPlugin({
+    assets: "public"
+  }))
+
   .use(swagger({
     path: "/docs",
     documentation: { info: { title: "XPanel API", version: "1.0.0" } }
   }))//документация
   .use(systemData)
-  .use(authRoutes) // login register me 
+  .use(auth)
   .use(dash)
   .use(xrayRoutes) // xray status , inbounds and users (crud), grpc format data
   .use(pages) 

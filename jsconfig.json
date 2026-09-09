@@ -5,8 +5,11 @@
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "allowJs": true,
+    "jsxFactory": "Html.createElement",
+    "jsxFragmentFactory": "Html.Fragment",
+
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -26,6 +29,7 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "css:watch": "tailwindcss -i ./src/styles/input.css -o ./public/app.css --watch"
   }
 }
