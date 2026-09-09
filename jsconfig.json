@@ -30,6 +30,5 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-    "css:watch": "tailwindcss -i ./src/styles/input.css -o ./public/app.css --watch"
   }
 }

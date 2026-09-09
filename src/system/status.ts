@@ -1,10 +1,50 @@
-import { authGuard } from "@/middleware/authGuard";
 import { syncXray } from "@/services/xray/sync";
 import Elysia, { t } from "elysia";
 import os from "os";
 
+// Чистая функция — используется и роутом /system/all, и дашбордом напрямую,
+// без похода по HTTP к самому себе.
+export function getSystemSnapshot() {
+  const cpus = os.cpus();
+  const totalMem = os.totalmem();
+  const freeMem = os.freemem();
+  const usedMem = totalMem - freeMem;
+
+  const cpuLoad = cpus.map((cpu) => {
+    const total = Object.values(cpu.times).reduce((a, b) => a + b, 0);
+    return { model: cpu.model, speed: cpu.speed, usage: cpu.times, total };
+  });
+
+  const cpuUsagePercent =
+    cpuLoad.reduce((sum, core) => {
+      const active = core.usage.user + core.usage.sys + core.usage.irq;
+      return sum + (active / core.total) * 100;
+    }, 0) / (cpuLoad.length || 1);
+
+  return {
+    cpu: {
+      cores: cpus.length,
+      model: cpus[0]?.model ?? "unknown",
+      usagePercent: Number(cpuUsagePercent.toFixed(1)),
+      load: cpuLoad,
+    },
+    memory: {
+      total: totalMem,
+      free: freeMem,
+      used: usedMem,
+      usagePercent: Number(((usedMem / totalMem) * 100).toFixed(1)),
+    },
+    system: {
+      platform: os.platform(),
+      arch: os.arch(),
+      uptime: os.uptime(),
+      hostname: os.hostname(),
+    },
+    loadavg: os.loadavg() as [number, number, number],
+  };
+}
+
 export const systemData = new Elysia({ prefix: "/system" })
-.use(authGuard)
 .get('/check',() =>{
 return syncXray()
 })

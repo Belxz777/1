@@ -14,7 +14,7 @@ import {
   getAllOnlineUsers,
   getUserStats,
 } from "../services/xray/api";
-import { InboundModel, InboundCreateSchema, InboundUpdateSchema, NewInbound } from "../models/inbound";
+import { InboundModel, InboundCreateSchema, InboundUpdateSchema, type NewInbound } from "../models/inbound";
 import { ClientModel, ClientCreateSchema } from "../models/client";
 import { addUserToInbound, removeUserFromInbound, listInbounds } from "../services/xray/handler";
 import { authGuard } from "@/middleware/authGuard";

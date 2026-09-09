@@ -8,9 +8,8 @@ import swagger from "@elysiajs/swagger";
 import html from "@elysiajs/html";
 import { systemData } from "./system/status";
 import { loggingMiddleware } from "./logging/middleware";
-import { dash } from "./routes/html/dashboard.tsx";
 import {auth} from "./api/auth.tsx"
-
+import { dashboard } from "./api/dashboard.tsx";
 console.log('🚀 Starting server with config:', {
   port: env.server.port,
   env: env.server.env,
@@ -35,7 +34,7 @@ const app = new Elysia()
   }))//! документация эндпоинтов на /docs
   .use(systemData) 
   .use(auth)
-  .use(dash)
+  .use(dashboard)
   .use(xrayRoutes) // xray status , inbounds and users (crud), grpc format data
   .use(pages) 
   .use(subRoutes)
