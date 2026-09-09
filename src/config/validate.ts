@@ -21,7 +21,8 @@ export const envSchema = z.object({
 
   // JWT аутентификация
   AUTH_JWT_SECRET: z.string().min(16, "AUTH_JWT_SECRET must be at least 16 characters").default("changeme-secret-key-min-16-chars"),
-
+  ADMIN_PASSWORD_KEY: z.string().default("admin_password_hash"),
+  
   // Опциональные переменные
   MODE: z.string().optional(),
 

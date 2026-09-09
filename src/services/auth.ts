@@ -40,7 +40,7 @@ export async function isAdminRegistered(): Promise<boolean> {
   return hash !== null;
 }
 export async function clearAdmin():Promise<boolean> {
-  const result = await db
+  const result:any = await db
     .delete(settings)
     .where(eq(settings.key, ADMIN_PASSWORD_KEY));
   return result.changes > 0;

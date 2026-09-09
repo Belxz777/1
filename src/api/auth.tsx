@@ -1,7 +1,7 @@
 import Elysia, { t } from "elysia";
 import jwt from "@elysiajs/jwt";
 import { Html } from "@elysiajs/html";
-import { env } from "../../config";
+import { env } from "../config";
 
 import {
   verifyPassword,
@@ -9,11 +9,11 @@ import {
   isAdminRegistered,
   getAdminPasswordHash,
   clearAdmin,
-} from "../../services/auth";
+} from "../services/auth";
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { RegisterPage } from "@/pages/auth/RegisterPage";
 
-import { LoginPage } from "../../pages/auth/LoginPage";
 
-import { RegisterPage } from "../../pages/auth/RegisterPage";
 
 export const auth = new Elysia({
   prefix: "/auth",
@@ -29,7 +29,6 @@ export const auth = new Elysia({
       exp: "7d",
     })
   )
-
 
   .get(
     "/login",
