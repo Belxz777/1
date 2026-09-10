@@ -116,8 +116,6 @@ export const auth = new Elysia({
     }
   )
 
-
-
   .post(
     "/login",
 
@@ -210,4 +208,22 @@ export const auth = new Elysia({
 
       }),
     }
-  );
+  )
+  .get("/logout", () => {
+  return new Response(null, {
+    status: 302,
+
+    headers: {
+      Location: "/",
+
+      "Set-Cookie":
+        "token=; " +
+        "HttpOnly; " +
+        "Path=/; " +
+        "Max-Age=0; " +
+        "Expires=Thu, 01 Jan 1970 00:00:00 GMT; " +
+        "SameSite=Lax",
+    },
+  });
+});
+

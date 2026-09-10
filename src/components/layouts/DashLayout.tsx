@@ -61,7 +61,7 @@ export const DashboardLayout = ({
               <span>Администратор</span>
             </div>
             <a href="/auth/logout" class="logout-button" title="Выйти">
-              ↗
+              Выйти
             </a>
           </div>
         </aside>

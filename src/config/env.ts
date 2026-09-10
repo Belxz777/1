@@ -35,6 +35,7 @@ export const env = {
   auth: {
     jwtSecret: validatedEnv.AUTH_JWT_SECRET,
     adminPassword: validatedEnv.ADMIN_PASSWORD_KEY,
+    adminName:validatedEnv.ADMIN_NAME
   },
 
   // Публичный адрес для share-ссылок
